@@ -22,7 +22,7 @@ const tools = [
   },
   {
     name: "update_todo",
-    description: "Update the status of an existing to-do list item.",
+    description: "Update the status of an existing to-do list item. If you do not know the ID, use list_todos first to find it.",
     parameters: {
       type: "object",
       properties: {
@@ -41,7 +41,7 @@ const tools = [
   },
   {
     name: "delete_todo",
-    description: "Delete a task from the user's to-do list.",
+    description: "Delete a task from the user's to-do list. If you do not know the ID, use list_todos first to find it.",
     parameters: {
       type: "object",
       properties: {
@@ -82,12 +82,26 @@ const tools = [
       type: "object",
       properties: {},
     },
+  },
+  {
+    name: "delete_memory",
+    description: "Delete a memory from the user's memory bank. Use recall_memory first to find the ID.",
+    parameters: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string",
+          description: "The ID of the memory to delete.",
+        },
+      },
+      required: ["id"],
+    },
   }
 ];
 
 const model = genAI.getGenerativeModel({
   model: "gemini-2.5-flash",
-  systemInstruction: "You are a helpful, professional voice-based AI assistant. You help the user manage their to-do list and remember important facts about them. Use the provided tools to interact with their to-do list and memory. Always be concise, conversational, and friendly. Do not use markdown since your output will be read aloud by text-to-speech. If you perform an action (like adding a todo or saving a memory), let the user know what you did.",
+  systemInstruction: "You are a helpful, professional voice-based AI assistant. You help the user manage their to-do list and remember important facts about them. Use the provided tools to interact with their to-do list and memory. Always be concise, conversational, and friendly. Do not use markdown since your output will be read aloud by text-to-speech. If you perform an action (like adding a todo or saving a memory), let the user know what you did. IMPORTANT: Users do not know the internal task or memory IDs. If a user asks to update or delete a task, use the list_todos tool first to find the matching task ID, then perform the action. If a user asks to delete a memory, use the recall_memory tool first to find the matching memory ID, then perform the action. NEVER ask the user for an ID.",
   tools: [
     {
       functionDeclarations: tools as any
@@ -157,6 +171,17 @@ export async function POST(req: Request) {
       }
       else if (call.name === "recall_memory") {
         functionResponse = { memories: getMemories() };
+      }
+      else if (call.name === "delete_memory") {
+        let memories = getMemories();
+        const initialLen = memories.length;
+        memories = memories.filter(m => m.id !== args.id);
+        saveMemories(memories);
+        if (memories.length < initialLen) {
+          functionResponse = { success: true, message: "Memory deleted successfully." };
+        } else {
+          functionResponse = { success: false, error: "Memory not found." };
+        }
       }
       
       console.log(`[Agent] Function response for ${call.name}:`, functionResponse);
