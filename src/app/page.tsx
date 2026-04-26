@@ -131,6 +131,9 @@ export default function Home() {
         if (data.error.includes("429") || data.error.includes("Too Many Requests") || data.error.toLowerCase().includes("quota")) {
           setStatus('error');
           setCountdown(12);
+        } else if (data.error.includes("403") || data.error.includes("leaked") || data.error.includes("API key")) {
+          setAgentResponse("Your API key was revoked by Google because it was leaked. Please generate a new one.");
+          setStatus('idle');
         } else {
           setAgentResponse("I encountered an unexpected error.");
           setStatus('idle');
