@@ -18,6 +18,10 @@ const todosFile = path.join(dataDir, 'todos.json');
 const memoryFile = path.join(dataDir, 'memory.json');
 
 const ensureFile = (filePath: string, defaultContent: any) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
   if (!fs.existsSync(filePath)) {
     fs.writeFileSync(filePath, JSON.stringify(defaultContent, null, 2));
   }
