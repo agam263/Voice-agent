@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, CheckCircle2, Circle, ListTodo, Brain, Plus, Zap, RefreshCw, Activity, Loader2 } from 'lucide-react';
+import { Mic, MicOff, CheckCircle2, Circle, ListTodo, Brain, Plus, Zap, RefreshCw, Activity, Loader2, Sparkles } from 'lucide-react';
 
 interface Todo {
   id: string;
