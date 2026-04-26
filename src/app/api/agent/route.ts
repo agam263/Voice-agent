@@ -111,7 +111,7 @@ export async function POST(req: Request) {
     // Handle function calls loop
     while (call && loopCount < 5) {
       loopCount++;
-      const args = call.args;
+      const args = call.args as any;
       console.log(`[Agent] Calling function: ${call.name} with args:`, args);
       let functionResponse: any;
 
